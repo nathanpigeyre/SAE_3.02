@@ -21,7 +21,7 @@ def main():
     client_socket.connect((host, port))
 
     # Inscription
-    username = input("Enter your username: ")
+    username = input("Ton Nom: ")
     client_socket.send(username.encode())
     registration_status = client_socket.recv(1024).decode()
     print(registration_status)
