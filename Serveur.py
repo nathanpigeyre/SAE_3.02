@@ -1,7 +1,8 @@
 import socket
 import threading
 
-clients = []
+clients = {}
+nom = set()
 
 def main():
     host = "127.0.0.1"
@@ -14,29 +15,41 @@ def main():
     Connected = True
     while Connected == True:
         client_socket, client_address = server_socket.accept()
-        print("Accepte la connection de  {}".format(client_address[0]))
-        clients.append(client_socket)
-        client_thread = threading.Thread(target=server, args=(client_socket,))
-        client_thread.start()
+        print("Accepte la connection de {}".format(client_address[0]))
+        threading.Thread(target=Server, args=(client_socket,)).start()
 
-def server(server_socket):
+def Server(client_socket):
+    id = client_socket.recv(1024).decode()
+    if id in nom:
+        client_socket.send("Username already taken. Disconnecting...".encode())
+        client_socket.close()
+        return
+    else:
+        nom.add(id)
+        clients[client_socket] = id
+        client_socket.send("Registration successful. You can now send messages.".encode())
+        print("Bienvenue à {}".format(id))
     Connected = True
     while Connected == True:
         try:
-            message_receve = server_socket.recv(1024).decode()
-            if not message_receve:
+            message_receive = client_socket.recv(1024).decode()
+            if not message_receive:
                 break
-            print("\nMessage (Client): " + message_receve)
-            
-            for pointeur in clients:
-                if pointeur != server_socket:
+
+            print("\n{} : {}".format(id, message_receive))
+
+            for socket, name in clients.items():
+                if socket != client_socket:
                     try:
-                        pointeur.send(message_receve.encode())
+
+                        socket.send("\n".encode())
+                        socket.send("{}: {}".format(id, message_receive).encode())
                     except ConnectionResetError:
                         pass
         except ConnectionResetError:
-            print("Client déconnecté")
-            clients.remove(server_socket)
+            print("{} disconnected".format(id))
+            nom.remove(id)
+            del clients[client_socket]
             break
 
 if __name__ == "__main__":
