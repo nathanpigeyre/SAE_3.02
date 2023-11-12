@@ -28,15 +28,14 @@ def Server(client_socket):
         nom.add(id)
         clients[client_socket] = id
         client_socket.send("Enregistrement est un succès. Vous pouvez envoyer des messages.".encode())
-    print("Bienvenue à {}".format(id))
+        print("Bienvenue à {}".format(id))
     Connected = True
     while Connected == True:
         try:
             message_receive = client_socket.recv(1024).decode()
             if not message_receive:
                 break
-            print("Bonjour {}".format(id))
-            print("\n{} : {}".format(id, message_receive))
+            print("{} : {}".format(id, message_receive))
 
             for socket, name in clients.items():
                 if socket != client_socket:
