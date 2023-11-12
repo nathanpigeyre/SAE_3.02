@@ -26,7 +26,7 @@ def main():
     registration_status = client_socket.recv(1024).decode()
     print(registration_status)
 
-    if "successful" in registration_status:
+    if "succès" in registration_status:
         receive_thread = threading.Thread(target=receive_messages, args=(client_socket,))
         receive_thread.start()
 

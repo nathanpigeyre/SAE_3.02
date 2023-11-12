@@ -21,21 +21,21 @@ def main():
 def Server(client_socket):
     id = client_socket.recv(1024).decode()
     if id in nom:
-        client_socket.send("Username already taken. Disconnecting...".encode())
+        client_socket.send("L'utilisateur es déja pris. Déconnection...".encode())
         client_socket.close()
         return
     else:
         nom.add(id)
         clients[client_socket] = id
-        client_socket.send("Registration successful. You can now send messages.".encode())
-        print("Bienvenue à {}".format(id))
+        client_socket.send("Enregistrement est un succès. Vous pouvez envoyer des messages.".encode())
+    print("Bienvenue à {}".format(id))
     Connected = True
     while Connected == True:
         try:
             message_receive = client_socket.recv(1024).decode()
             if not message_receive:
                 break
-
+            print("Bonjour {}".format(id))
             print("\n{} : {}".format(id, message_receive))
 
             for socket, name in clients.items():
