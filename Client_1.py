@@ -14,7 +14,7 @@ def receive_messages(client_socket):
 
 def main():
     ip_address = "127.0.0.1"
-    port = 1501
+    port = 1503
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((ip_address, port))
@@ -32,14 +32,16 @@ def main():
     if "succès" in registration_status:
         receive_thread = threading.Thread(target=receive_messages, args=(client_socket,))
         receive_thread.start()
-
-        while True:
-            message_send = input("You: ")
+        Connected = True
+        while Connected == True:
+            To = input("Who: ")
+            You = input("You: ")
+            message_send = To +'/' + You
             try:
                 client_socket.send(message_send.encode())
             except ConnectionAbortedError:
                 print("Le serveur n'est pas connecté")
-                break
+                Connected = False
 
 if __name__ == "__main__":
     main()

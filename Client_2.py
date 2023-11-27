@@ -15,7 +15,7 @@ def receive_messages(client_socket):
 
 def main():
     ip_address = "127.0.0.1"
-    port = 1501
+    port = 1502
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((ip_address, port))
