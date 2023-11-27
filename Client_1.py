@@ -14,7 +14,7 @@ def receive_messages(client_socket):
 
 def main():
     ip_address = "127.0.0.1"
-    port = 1503
+    port = 1504
 
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_socket.connect((ip_address, port))
@@ -41,6 +41,8 @@ def main():
                 client_socket.send(message_send.encode())
             except ConnectionAbortedError:
                 print("Le serveur n'est pas connecté")
+                Connected = False
+            except ConnectionResetError:
                 Connected = False
 
 if __name__ == "__main__":

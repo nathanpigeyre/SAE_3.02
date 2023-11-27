@@ -15,7 +15,7 @@ clients = {}
 
 def main():
     ip_address = "127.0.0.1"
-    port = 1503
+    port = 1504
 
     #Connected = True
     #while Connected == True:
@@ -72,13 +72,45 @@ def Server(client_socket):
                         socket.send("{}: {}".format(id, message_rec).encode())
                     except ConnectionResetError:
                         pass
+
+
+
         except ConnectionResetError:
             print("{} disconnected".format(id))
             cursor.execute("DELETE FROM users WHERE nom = %s", (id,))
             db.commit()
             del clients[client_socket]
             break
+        connected = True
+        while connected == True :
 
+                commande = input("Une Commande ? yes or no : ")
+                if commande == "yes":
+
+                    choix = input("Kill or Kick or Ban : ")
+
+                    if choix == "Kick":
+                        name = input('Le nom a Kick : ')
+                        #suppr de la databases et le rejouté dans un certain temps
+
+
+                    elif choix == "Ban":
+                        Ban = input('Le nom a Ban : ')
+                        #supp son login dans la databases
+
+
+                    elif choix == "Kill":
+                        print("Vous killer votre serveur.")
+                        #envoie au client de se shut
+                        for socket, name in clients.items():
+                            if socket != client_socket:
+                                test = 'Kill'
+                    else :
+                        print("Il faut écrire Kill , Kick ou Ban")
+                elif commande == "no":
+                    connected = False
+                else:
+                    print("pas la bonne syntaxe")
 
 if __name__ == "__main__":
     main()
