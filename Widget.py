@@ -1,7 +1,55 @@
 import sys
-from PyQt6.QtCore import Qt, QSize
-from PyQt6.QtWidgets import QApplication, QMainWindow, QToolBar, QTextEdit, QVBoxLayout, QWidget, QPushButton, QLabel, QLineEdit
+from PyQt6.QtCore import *
+from PyQt6.QtWidgets import *
+from Client_1 import main
 
+
+
+class LOGIN(QMainWindow):
+    def __init__(self):
+        super().__init__()
+
+        self.setWindowTitle("Discord-style App")
+        self.setGeometry(900, 400, 130, 200)
+
+        self.widget = QWidget(self)
+        self.setCentralWidget(self.widget)
+        self.layout = QVBoxLayout(self.widget)
+
+        self.stacked_widget = QStackedWidget(self)
+        self.layout.addWidget(self.stacked_widget)
+
+        login_widget = QWidget(self)
+        self.login_layout = QVBoxLayout(login_widget)
+        self.username_input = QLineEdit()
+        self.password_input = QLineEdit()
+        self.password_input.setEchoMode(QLineEdit.EchoMode.Password)
+        login_button = QPushButton("Login")
+        login_button.clicked.connect(self.on_login_clicked)
+        sign_up_button = QPushButton("Sign Up")
+        sign_up_button.clicked.connect(self.on_sign_up_clicked)
+        self.login_layout.addWidget(QLabel("Username:"))
+        self.login_layout.addWidget(self.username_input)
+        self.login_layout.addWidget(QLabel("Password:"))
+        self.login_layout.addWidget(self.password_input)
+        self.login_layout.addWidget(login_button)
+        self.login_layout.addWidget(sign_up_button)
+        self.stacked_widget.addWidget(login_widget)
+
+
+        self.stacked_widget.setCurrentIndex(0)
+
+    def on_login_clicked(self):
+        # Logique pour vérifier l'authentification ici
+        # Si l'authentification est réussie :
+
+        print('log')
+
+    def on_sign_up_clicked(self):
+        # Logique pour gérer l'inscription ici
+        # Si l'inscription est réussie :
+
+        print('sing')
 class Discord(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -145,6 +193,6 @@ class Discord(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    window = Discord()
+    window = LOGIN()
     window.show()
     sys.exit(app.exec())
