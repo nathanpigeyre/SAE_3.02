@@ -3,14 +3,22 @@ from PyQt6.QtWidgets import *
 import socket
 import threading
 import re
-
-
 class LOGIN(QWidget):
+    """
+        Il y a 3 classes dans mon client, la première est le LOGIN (la page d'inscription)
+        celle-ci permet de récupérer les identifiant et de les envoyer au serveur pour qu'il
+        check s'ils existent.
+    """
     open_choix_signal = pyqtSignal()
     close_login_window_signal = pyqtSignal()
     open_discord_signal = pyqtSignal()
 
+
+
     def __init__(self, client_socket):
+        """
+            Cette partie est la partie graphique.
+        """
         super().__init__()
 
         self.close_login_window_signal.connect(self.close_login_window)
@@ -50,7 +58,9 @@ class LOGIN(QWidget):
         self.receive_thread.start()
 
 
-
+    """
+        Cette partie consiste à envoyer !#log ou !#sign au serveur puis après envoyer les username et password.
+    """
     def on_login_clicked(self):
         log = "!#log"
         self.client_socket.send(log.encode())
@@ -72,7 +82,14 @@ class LOGIN(QWidget):
         self.open_choix_signal.connect(self.open_choix)
         self.close_login_window_signal.connect(self.close)
 
+
+
     def receive_messages(self):
+        """
+            Cette partie est la réception de tout les massages, des kicks, des bans, des kills,
+            des messages que l'on reçoit pour faire des box d'alertes.
+            On reçoit aussi ici le fait de mettre visible ou non les salons ou l'utilisateur a accès.
+        """
         while True:
             try:
                 reply = self.client_socket.recv(1024).decode()
@@ -151,6 +168,10 @@ class LOGIN(QWidget):
                 QMessageBox.warning(self, "Erreur", f"Une erreur s'est produite : {e}")
                 break
 
+    """
+        On a aussi ici les def pour la bien séance de tout donc l'ouverture et les fermetures des autres pages.
+    """
+
     def close_login_window(self):
         self.close()
     def open_choix(self):
@@ -161,10 +182,18 @@ class LOGIN(QWidget):
         self.close_login_window_signal.emit()
         self.discord_window.show()
 
+
+
 class SalonSelection(QWidget):
+    """
+        Voici ici la deuxième classe qui permet de choisir les salons auquel vous voulez avoir accès.
+    """
     open_discord_signal = pyqtSignal()
     close_choix_window_signal = pyqtSignal()
     def __init__(self, client_socket):
+        """
+            Voici la partie graphique.
+        """
         super().__init__()
         self.close_choix_window_signal.connect(self.close_choix_window)
         self.client_socket = client_socket
@@ -192,7 +221,14 @@ class SalonSelection(QWidget):
         self.open_discord_signal.connect(self.open_discord)
         self.close_choix_window_signal.connect(self.close)
 
+
+
     def valider_selection(self):
+        """
+            Cette partie nous sert à confirmer et à mettre dans une liste les choix de salon du users.
+            Ainsi que l'envoyer au serveur avec le %!§ devant pour que le serveur puisse comprendre directement,
+            que c'est de l'envoi de chanels.
+        """
         selections = []
         if self.checkbox_blabla.isChecked():
             selections.append("Blabla")
@@ -210,6 +246,10 @@ class SalonSelection(QWidget):
         self.client_socket.send(messages.encode())
         self.open_discord_signal.emit()
 
+    """
+         On a aussi ici les def pour la bien séance de tout donc l'ouverture et les fermetures des autres pages.
+    """
+
     def close_choix_window(self):
         self.close()
 
@@ -218,8 +258,16 @@ class SalonSelection(QWidget):
         self.close_choix_window_signal.emit()
         self.discord_window.show()
 
+
+
 class Discord(QMainWindow):
+    """
+        Enfin voici notre 3e classe qui est le gros de l'application la page principal.
+    """
     def __init__(self, client_socket):
+        """
+            Voici la partie graphique.
+        """
         super().__init__()
         self.client_socket = client_socket
 
@@ -248,10 +296,10 @@ class Discord(QMainWindow):
         self.button4 = QPushButton("Comptabilité")
         self.button5 = QPushButton("Informatique")
         self.button6 = QPushButton("Marketing")
-        self.button3.setVisible(False)
-        self.button4.setVisible(False)
-        self.button5.setVisible(False)
-        self.button6.setVisible(False)
+        self.button3.setVisible(True)
+        self.button4.setVisible(True)
+        self.button5.setVisible(True)
+        self.button6.setVisible(True)
 
 
 
@@ -310,7 +358,13 @@ class Discord(QMainWindow):
         self.button5.clicked.connect(self.on_button5_clicked)
         self.button6.clicked.connect(self.on_button6_clicked)
 
+
+
     def check_condition(self, button3, button4, button5, button6):
+        """
+            Cette partie sert à confirmer l'accès au chanels ainsi si la condition passe à True alors,
+            le bouton devient visible.
+        """
         if button3:
             self.button3.setVisible(True)
         else:
@@ -328,7 +382,18 @@ class Discord(QMainWindow):
         else:
             self.button6.setVisible(False)
 
+
+
+    """
+        Nous avons la toutes les conditions lorsque nous appuyons sur les boutons.
+    """
     def on_button1_clicked(self):
+        """
+            Lorsque le bouton 1 soit message privé est appuyer, il envoie au serveur "get_users_list".
+            C'est le signal pour que le serveur lui envoie la liste des personnes inscrite à l'application.
+            Ensuite après avoir reçu et split on crée un bouton par personne et lorsque l'on clique dessus,
+            cela crée un chat area.
+        """
         try:
             self.clear_chat_area()
             self.client_socket.send("get_users_list".encode())
@@ -354,22 +419,23 @@ class Discord(QMainWindow):
     def on_dynamic_button_clicked(self, name):
         print(f"Clicked on {name}")
 
+    """
+        À partir d'ici ce sont les boutons de chanels. Mon but est que lorsque l'on appuie sur un bouton.
+        Cela ouvre une chat area, mais cela garde en mémoire le bouton et lorsque l'on envoie le message.
+        Le destinataire devient la variable enregistrée avant. (room_name)
+    """
+
     def on_button2_clicked(self):
         room_name = "Général"
         self.on_send_clicked(room_name)
-
 
     def on_button3_clicked(self):
         room_name = "Blabla"
         self.on_send_clicked(room_name)
 
-
-
     def on_button4_clicked(self):
         room_name = "Comptabilité"
         self.on_send_clicked(room_name)
-
-
 
     def on_button5_clicked(self):
         room_name = "Informatique"
@@ -381,7 +447,11 @@ class Discord(QMainWindow):
         self.on_send_clicked(room_name)
 
 
+
     def on_disconnect_clicked(self):
+        """
+            Le bouton de déconnexion
+        """
         print("Déconnecté")
         self.close_app_signal.emit()
         self.client_socket.close()
@@ -389,6 +459,10 @@ class Discord(QMainWindow):
 
 
     def on_send_clicked(self, room_name):
+        """
+            Le bouton avec lequel on envoie des messages cela met "destinataire,message" et l'envoie au
+            serveur qui lui le renvoie à tous les clients.
+        """
         message_text = self.message_input.text()
         self.message_input.clear()
         self.add_text_to_chat_area(f"You: {message_text}")
@@ -403,18 +477,33 @@ class Discord(QMainWindow):
         except OSError:
             print("Erreur lors de l'envoi du message")
 
+
+
     def clear_chat_area(self):
+        """
+            Cette fonction sert comme son nom l'indique a clear le chat pour faire genre, on change de fenêtre.
+        """
         while self.chat.count():
             child = self.chat.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
 
+
     def add_text_to_chat_area(self, text):
+        """
+            Cette fonction sert à ajouter des textes dans l'interface du client.
+        """
         label = QTextEdit(self)
         label.setPlainText(text)
         label.setReadOnly(True)
         self.chat.addWidget(label)
+
+
 def main():
+    """
+        Enfin la partie principale le main qui sert à rentrer en contact avec le serveur.
+        Et lance aussi le Login pour débuter la boucle.
+    """
     ip_address = "127.0.0.1"
     port = 1507
     client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
